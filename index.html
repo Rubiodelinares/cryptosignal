@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -12,10 +12,58 @@
     <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: {} }
+        }
+    </script>
     <style>
+        :root {
+            --bg-primary: #02040a;
+            --bg-secondary: #0c1223;
+            --bg-card: rgba(15, 23, 42, 0.85);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(148, 163, 184, 0.12);
+            --border-hover: rgba(59, 130, 246, 0.35);
+            --accent-blue: #60a5fa;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --accent-amber: #fbbf24;
+            --accent-purple: #c084fc;
+        }
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: rgba(148, 163, 184, 0.25);
+            --border-hover: rgba(59, 130, 246, 0.5);
+            --accent-blue: #2563eb;
+            --accent-green: #059669;
+            --accent-red: #dc2626;
+            --accent-amber: #d97706;
+            --accent-purple: #7c3aed;
+        }
         * { font-family: 'Inter', sans-serif; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        body { background: #02040a; color: #f1f5f9; font-size: 14px; -webkit-tap-highlight-color: transparent; touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+        body { 
+            background: var(--bg-primary); 
+            color: var(--text-primary); 
+            font-size: 14px; 
+            -webkit-tap-highlight-color: transparent; 
+            touch-action: manipulation; 
+            -webkit-touch-callout: none; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            -webkit-overflow-scrolling: touch; 
+            scroll-behavior: smooth; 
+            transition: background 0.3s, color 0.3s;
+        }
         .news-card {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.7));
             border: 1px solid rgba(148, 163, 184, 0.1);
@@ -23,11 +71,18 @@
             padding: 14px;
             transition: all 0.2s ease;
             cursor: pointer;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+        }
+        [data-theme="light"] .news-card {
+            background: linear-gradient(135deg, rgba(241, 245, 249, 0.8), rgba(255, 255, 255, 0.9));
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
         .news-card:hover {
-            border-color: rgba(59, 130, 246, 0.3);
+            border-color: var(--border-hover);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
         .news-card .source {
             font-size: 10px;
@@ -38,7 +93,7 @@
         .news-card .title {
             font-size: 13px;
             font-weight: 600;
-            color: #e2e8f0;
+            color: var(--text-primary);
             line-height: 1.4;
             margin: 6px 0;
             display: -webkit-box;
@@ -48,7 +103,7 @@
         }
         .news-card .meta {
             font-size: 10px;
-            color: #64748b;
+            color: var(--text-muted);
         }
         .news-card .impact-tag {
             font-size: 9px;
@@ -59,6 +114,10 @@
         .impact-high { background: rgba(239,68,68,0.15); color: #fb7185; border: 1px solid rgba(239,68,68,0.25); }
         .impact-medium { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
         .impact-low { background: rgba(16,185,129,0.15); color: #4ade80; border: 1px solid rgba(16,185,129,0.25); }
+        [data-theme="light"] .impact-high { background: rgba(239,68,68,0.1); color: #991b1b; border-color: rgba(239,68,68,0.2); }
+        [data-theme="light"] .impact-medium { background: rgba(245,158,11,0.1); color: #92400e; border-color: rgba(245,158,11,0.2); }
+        [data-theme="light"] .impact-low { background: rgba(16,185,129,0.1); color: #065f46; border-color: rgba(16,185,129,0.2); }
+
         .event-card {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(148, 163, 184, 0.08);
@@ -68,6 +127,10 @@
             align-items: center;
             gap: 12px;
             transition: all 0.2s;
+        }
+        [data-theme="light"] .event-card {
+            background: rgba(241, 245, 249, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.15);
         }
         .event-card:hover {
             border-color: rgba(59, 130, 246, 0.2);
@@ -84,14 +147,19 @@
         .sentiment-bullish { color: #4ade80; }
         .sentiment-bearish { color: #fb7185; }
         .sentiment-neutral { color: #94a3b8; }
+        [data-theme="light"] .sentiment-bullish { color: #059669; }
+        [data-theme="light"] .sentiment-bearish { color: #dc2626; }
+        [data-theme="light"] .sentiment-neutral { color: #64748b; }
+
         .glass {
-            background: rgba(15, 23, 42, 0.85);
+            background: var(--bg-card);
             backdrop-filter: blur(24px);
-            border: 1px solid rgba(148, 163, 184, 0.12);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
         }
         .glass-hover:hover {
-            border-color: rgba(59, 130, 246, 0.35);
+            border-color: var(--border-hover);
             box-shadow: 0 0 40px rgba(59, 130, 246, 0.08);
         }
         .btn-trade {
@@ -140,6 +208,10 @@
             transition: all 0.3s ease;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
         }
+        [data-theme="light"] .position-card {
+            background: linear-gradient(135deg, rgba(241, 245, 249, 0.8), rgba(255, 255, 255, 0.9));
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
         .position-card:hover { border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 4px 20px rgba(59, 130, 246, 0.08); }
         .pulse-dot {
             width: 7px; height: 7px; border-radius: 50%;
@@ -156,10 +228,17 @@
         }
         .price-up { color: #4ade80; font-weight: 700; }
         .price-down { color: #fb7185; font-weight: 700; }
+        [data-theme="light"] .price-up { color: #059669; }
+        [data-theme="light"] .price-down { color: #dc2626; }
+
         .indicator-bar {
             height: 6px; border-radius: 3px;
             background: #1e293b; overflow: hidden;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        }
+        [data-theme="light"] .indicator-bar {
+            background: #e2e8f0;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
         }
         .indicator-bar .fill {
             height: 100%; border-radius: 3px;
@@ -176,6 +255,13 @@
         .tag-blue { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); font-weight: 700; }
         .tag-purple { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); font-weight: 700; }
         .tag-slate { background: rgba(100,116,139,0.15); color: #cbd5e1; border: 1px solid rgba(100,116,139,0.3); font-weight: 700; }
+        [data-theme="light"] .tag-green { background: rgba(16,185,129,0.1); color: #065f46; border-color: rgba(16,185,129,0.25); }
+        [data-theme="light"] .tag-red { background: rgba(239,68,68,0.1); color: #991b1b; border-color: rgba(239,68,68,0.25); }
+        [data-theme="light"] .tag-amber { background: rgba(245,158,11,0.1); color: #92400e; border-color: rgba(245,158,11,0.25); }
+        [data-theme="light"] .tag-blue { background: rgba(59,130,246,0.1); color: #1d4ed8; border-color: rgba(59,130,246,0.25); }
+        [data-theme="light"] .tag-purple { background: rgba(168,85,247,0.1); color: #6b21a8; border-color: rgba(168,85,247,0.25); }
+        [data-theme="light"] .tag-slate { background: rgba(100,116,139,0.1); color: #475569; border-color: rgba(100,116,139,0.25); }
+
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(-16px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
@@ -185,6 +271,9 @@
         }
         .trade-row:hover {
             background: rgba(59, 130, 246, 0.04);
+        }
+        [data-theme="light"] .trade-row:hover {
+            background: rgba(59, 130, 246, 0.06);
         }
         .animate-slide-in { animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes fadeIn {
@@ -215,11 +304,19 @@
             animation: spin 0.7s linear infinite;
             box-shadow: 0 0 8px rgba(96, 165, 250, 0.3);
         }
+        [data-theme="light"] .loading-spinner {
+            border-color: rgba(0,0,0,0.08);
+            border-top-color: #2563eb;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
         .conf-meter {
             position: relative; height: 6px; border-radius: 3px;
             background: #1e293b; overflow: hidden;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        }
+        [data-theme="light"] .conf-meter {
+            background: #e2e8f0;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
         }
         .conf-meter .fill {
             height: 100%; border-radius: 3px;
@@ -231,6 +328,9 @@
             text-transform: uppercase; letter-spacing: 0.08em;
             color: #94a3b8;
         }
+        [data-theme="light"] .section-title {
+            color: #64748b;
+        }
         .divider {
             height: 1px; background: linear-gradient(90deg, transparent, rgba(148,163,184,0.15), transparent);
         }
@@ -240,17 +340,25 @@
             transition: all 0.2s; cursor: pointer;
             border: 1px solid transparent;
             min-height: 40px;
+            color: var(--text-secondary);
         }
         .tab-btn.active {
             background: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
+            color: var(--accent-blue);
             border-color: rgba(59, 130, 246, 0.35);
             font-weight: 600;
         }
-        .tab-btn:not(.active) { color: #475569; }
+        [data-theme="light"] .tab-btn.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
         .tab-btn:not(.active):hover {
             background: rgba(148, 163, 184, 0.08);
             color: #94a3b8;
+        }
+        [data-theme="light"] .tab-btn:not(.active):hover {
+            background: rgba(148, 163, 184, 0.12);
+            color: #475569;
         }
         .scroll-hide::-webkit-scrollbar { width: 5px; }
         .scroll-hide::-webkit-scrollbar-track { background: transparent; }
@@ -263,12 +371,16 @@
         .input-trade {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid rgba(148, 163, 184, 0.2);
-            color: #f1f5f9;
+            color: var(--text-primary);
             transition: all 0.2s;
             -webkit-appearance: none;
             appearance: none;
             font-size: 15px;
             min-height: 40px;
+        }
+        [data-theme="light"] .input-trade {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.3);
         }
         .input-trade:focus {
             outline: none;
@@ -276,12 +388,19 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
             background: rgba(15, 23, 42, 0.95);
         }
+        [data-theme="light"] .input-trade:focus {
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
         .input-trade::placeholder { color: #94a3b8; }
         .toggle-switch {
             position: relative; width: 44px; height: 24px;
             background: #334155; border-radius: 12px;
             cursor: pointer; transition: background 0.2s;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+        [data-theme="light"] .toggle-switch {
+            background: #cbd5e1;
         }
         .toggle-switch.on { background: #3b82f6; }
         .toggle-switch::after {
@@ -326,22 +445,30 @@
             border-color: rgba(245, 158, 11, 0.3);
             color: #fbbf24;
         }
+        .alert-toast.push {
+            background: rgba(15, 23, 42, 0.95);
+            border-color: rgba(245, 158, 11, 0.5);
+            color: #fbbf24;
+        }
         .config-row {
             display: flex; align-items: center; justify-content: space-between;
             padding: 10px 0; border-bottom: 1px solid rgba(148,163,184,0.08);
         }
         .config-row:last-child { border-bottom: none; }
         .config-label { font-size: 12px; color: #94a3b8; }
-        .config-value { font-size: 12px; font-weight: 600; color: #e2e8f0; }
+        [data-theme="light"] .config-label { color: #64748b; }
+        .config-value { font-size: 12px; font-weight: 600; color: var(--text-primary); }
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             backdrop-filter: blur(8px); z-index: 100;
             display: flex; align-items: center; justify-content: center;
         }
         .modal-content {
-            background: #0f172a; border: 1px solid rgba(148,163,184,0.25);
+            background: var(--bg-secondary); 
+            border: 1px solid var(--border-color);
             border-radius: 16px; padding: 24px; max-width: 480px; width: 90%;
             max-height: 80vh; overflow-y: auto;
+            color: var(--text-primary);
         }
         .retry-btn {
             padding: 6px 14px; border-radius: 8px;
@@ -364,6 +491,49 @@
             color: #fbbf24;
             text-align: center;
             box-shadow: 0 2px 12px rgba(245, 158, 11, 0.1);
+        }
+        [data-theme="light"] .stock-warning {
+            background: rgba(245, 158, 11, 0.05);
+            color: #92400e;
+        }
+
+        /* Correlation matrix */
+        .corr-matrix {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            max-width: 400px;
+        }
+        .corr-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            transition: transform 0.2s;
+        }
+        .corr-cell:hover { transform: scale(1.1); z-index: 10; }
+        .corr-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 4px;
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            background: rgba(148, 163, 184, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        .theme-toggle:hover {
+            background: rgba(148, 163, 184, 0.2);
         }
     </style>
 </head>
@@ -394,6 +564,9 @@
                     <div class="text-[10px] text-slate-500 uppercase tracking-wider">Actualizado</div>
                     <div class="text-[11px] mono text-slate-500 font-medium" id="last-update">--:--:--</div>
                 </div>
+                <button onclick="toggleTheme()" class="theme-toggle" title="Cambiar tema">
+                    <span id="theme-icon">🌙</span>
+                </button>
                 <button onclick="openSettings()" class="p-2 rounded-lg bg-slate-800/70 hover:bg-slate-800 transition border border-slate-600/50" title="Configuración">
                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </button>
@@ -423,6 +596,7 @@
                     <select id="symbol-select" class="input-trade rounded-lg px-3 py-2 text-sm font-medium min-w-[150px]">
                         <option value="BTCUSDT" data-type="crypto">₿ Bitcoin (BTC)</option>
                         <option value="ETHUSDT" data-type="crypto">Ξ Ethereum (ETH)</option>
+                        <option value="SOLUSDT" data-type="crypto">◎ Solana (SOL)</option>
                         <option value="SPY" data-type="stock">📈 S&P 500 (SPY)</option>
                         <option value="AAPL" data-type="stock">🍎 Apple (AAPL)</option>
                     </select>
@@ -805,27 +979,30 @@
         <!-- TAB: INTELIGENCIA DE MERCADO -->
         <div id="tab-intel" class="p-4 hidden">
             <!-- API Key NewsAPI -->
-            <div class="mb-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/40">
-                <div class="flex flex-col gap-3">
+            <div class="mb-4 p-3 rounded-xl bg-slate-900/50 border border-slate-700/40">
+                <div class="flex flex-col md:flex-row md:items-center gap-3">
+                    <div class="flex-1">
+                        <div class="text-[11px] text-slate-400 mb-1">🔑 API Key de NewsAPI.org <span class="text-slate-500">(100 req/día gratis)</span></div>
+                        <input type="text" id="newsapi-key" placeholder="Pega tu API key de NewsAPI.org aquí" class="input-trade w-full rounded-lg px-3 py-2 text-[12px] mono">
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="saveNewsApiKey()" class="px-4 py-2 rounded-lg bg-blue-600/20 border border-blue-600/30 text-blue-400 text-xs font-semibold hover:bg-blue-600/30 transition">Guardar Key</button>
+                        <button onclick="window.open('https://newsapi.org/register','_blank')" class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-600/50 text-slate-400 text-xs hover:text-slate-300 transition">Obtener Key</button>
+                    </div>
+                </div>
+                <div id="newsapi-status" class="text-[10px] mt-2 text-slate-500"></div>
+            </div>
+
+            <!-- Push Notifications Toggle -->
+            <div class="mb-4 p-3 rounded-xl bg-slate-900/50 border border-slate-700/40">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-[11px] text-slate-400 font-semibold">🔔 Alertas Push del Navegador</div>
+                        <div class="text-[10px] text-slate-500">Notificación cuando noticia de ALTO impacto afecte a tu activo actual</div>
+                    </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-lg">🔑</span>
-                        <span class="text-sm font-bold text-slate-200">NewsAPI.org — Noticias Reales</span>
-                        <span class="tag tag-blue text-[9px]">100 req/día gratis</span>
-                    </div>
-                    <div class="text-[11px] text-slate-400 leading-relaxed">
-                        Para ver noticias reales de medios como Bloomberg, Reuters, CoinDesk, CNBC y otros, introduce tu API key gratuita de NewsAPI.org.
-                    </div>
-                    <div class="flex flex-col md:flex-row gap-2">
-                        <input type="text" id="newsapi-key" placeholder="Pega tu API key de NewsAPI.org aquí" class="input-trade flex-1 rounded-lg px-3 py-2 text-[12px] mono">
-                        <div class="flex gap-2">
-                            <button onclick="saveNewsApiKey()" class="px-4 py-2 rounded-lg bg-blue-600/20 border border-blue-600/30 text-blue-400 text-xs font-semibold hover:bg-blue-600/30 transition whitespace-nowrap">Guardar Key</button>
-                            <button onclick="window.open('https://newsapi.org/register','_blank')" class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-600/50 text-slate-400 text-xs hover:text-slate-300 transition whitespace-nowrap">Obtener Key Gratis</button>
-                        </div>
-                    </div>
-                    <div id="newsapi-status" class="text-[10px]"></div>
-                    <div class="p-2.5 rounded-lg bg-amber-500/5 border border-amber-500/10 text-[10px] text-amber-300/70">
-                        <strong>Nota:</strong> Si abres este archivo localmente (file://), NewsAPI puede bloquear las peticiones. 
-                        <a href="#" onclick="showGithubInstructions()" class="underline hover:text-amber-300">Sube la app a GitHub Pages</a> para que funcione al 100%.
+                        <span class="text-[11px] text-slate-400" id="push-status-label">Desactivado</span>
+                        <div class="toggle-switch" id="push-toggle" onclick="togglePushNotifications()"></div>
                     </div>
                 </div>
             </div>
@@ -834,7 +1011,7 @@
             <div class="flex items-center justify-between mb-4">
                 <span class="section-title">🧠 Inteligencia de Mercado</span>
                 <div class="flex items-center gap-2">
-                    <span class="text-[10px] text-slate-500" id="intel-status">Esperando API key...</span>
+                    <span class="text-[10px] text-slate-500" id="intel-status">Analizando fuentes...</span>
                     <button onclick="refreshIntel()" class="retry-btn">🔄 Actualizar</button>
                 </div>
             </div>
@@ -842,7 +1019,7 @@
             <!-- Sentimiento por activo -->
             <div class="mb-5">
                 <span class="section-title block mb-3">Sentimiento en Tiempo Real</span>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="sentiment-grid">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="sentiment-grid">
                     <div class="glass rounded-xl p-3 text-center">
                         <div class="text-[10px] text-slate-500 mb-1">Bitcoin</div>
                         <div class="text-lg font-bold" id="sent-btc">--</div>
@@ -854,14 +1031,40 @@
                         <div class="conf-meter mt-1"><div class="fill bg-blue-500" id="sent-bar-eth" style="width:50%"></div></div>
                     </div>
                     <div class="glass rounded-xl p-3 text-center">
+                        <div class="text-[10px] text-slate-500 mb-1">Solana</div>
+                        <div class="text-lg font-bold" id="sent-sol">--</div>
+                        <div class="conf-meter mt-1"><div class="fill bg-purple-500" id="sent-bar-sol" style="width:50%"></div></div>
+                    </div>
+                    <div class="glass rounded-xl p-3 text-center">
                         <div class="text-[10px] text-slate-500 mb-1">S&P 500</div>
                         <div class="text-lg font-bold" id="sent-spy">--</div>
-                        <div class="conf-meter mt-1"><div class="fill bg-purple-500" id="sent-bar-spy" style="width:50%"></div></div>
+                        <div class="conf-meter mt-1"><div class="fill bg-amber-500" id="sent-bar-spy" style="width:50%"></div></div>
                     </div>
                     <div class="glass rounded-xl p-3 text-center">
                         <div class="text-[10px] text-slate-500 mb-1">Apple</div>
                         <div class="text-lg font-bold" id="sent-aapl">--</div>
-                        <div class="conf-meter mt-1"><div class="fill bg-amber-500" id="sent-bar-aapl" style="width:50%"></div></div>
+                        <div class="conf-meter mt-1"><div class="fill bg-rose-500" id="sent-bar-aapl" style="width:50%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correlación de Sentimiento -->
+            <div class="mb-5">
+                <span class="section-title block mb-3">📊 Correlación de Sentimiento (Noticias)</span>
+                <div class="glass rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[11px] text-slate-400">Matriz de correlación basada en análisis de noticias recientes</span>
+                        <span class="text-[10px] text-slate-500">Actualizado cada 5 min</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <div class="corr-matrix mx-auto" id="correlation-matrix">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+                    <div class="flex justify-center gap-4 mt-3 text-[10px] text-slate-400">
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span> Positiva</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-slate-600 inline-block"></span> Neutral</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-500 inline-block"></span> Negativa</span>
                     </div>
                 </div>
             </div>
@@ -878,13 +1081,7 @@
                     </div>
                 </div>
                 <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[420px] overflow-y-auto scroll-hide">
-                    <div class="col-span-2 p-6 rounded-xl bg-slate-900/30 border border-slate-700/30 text-center">
-                        <div class="text-2xl mb-2">🔒</div>
-                        <div class="text-sm font-semibold text-slate-300 mb-1">Noticias reales bloqueadas</div>
-                        <div class="text-[11px] text-slate-500 max-w-md mx-auto">
-                            Introduce tu API key de NewsAPI.org arriba para cargar noticias reales de Bloomberg, Reuters, CoinDesk, CNBC y más.
-                        </div>
-                    </div>
+                    <div class="text-center py-8 text-xs text-slate-500">Cargando noticias...</div>
                 </div>
             </div>
 
@@ -909,7 +1106,7 @@
     <!-- Footer -->
     <footer class="max-w-[1500px] mx-auto px-4 py-6 text-center text-[11px] text-slate-500 border-t border-slate-800/20 mt-4">
         <p>CryptoSignal Pro v4.4 — Simulador educativo. No conecta con exchanges reales.</p>
-        <p class="mt-1">BTC/ETH: datos reales vía Binance | SPY/AAPL: simulación cuando Yahoo no disponible | Noticias: NewsAPI.org</p>
+        <p class="mt-1">BTC/ETH/SOL: datos reales vía Binance | SPY/AAPL: simulación cuando Yahoo no disponible | Noticias: NewsAPI.org + RSS</p>
     </footer>
 
     <!-- Modal Configuración -->
@@ -992,34 +1189,6 @@
         </div>
     </div>
 
-    <!-- Modal GitHub Pages Instructions -->
-    <div id="github-modal" class="modal-overlay hidden" onclick="if(event.target===this)document.getElementById('github-modal').classList.add('hidden')">
-        <div class="modal-content" style="max-width:560px">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-bold text-slate-200">📡 Subir a GitHub Pages (Gratis)</h3>
-                <button onclick="document.getElementById('github-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-300">✕</button>
-            </div>
-            <div class="space-y-3 text-[12px] text-slate-400 leading-relaxed">
-                <p class="text-slate-300 font-semibold">Por qué es necesario:</p>
-                <p>Los navegadores bloquean peticiones a APIs externas desde archivos locales (file://). Subiendo la app a GitHub Pages, la URL será https:// y NewsAPI funcionará al 100%.</p>
-                <div class="p-3 rounded-lg bg-slate-800/50 border border-slate-700/30">
-                    <p class="text-slate-300 font-semibold mb-2">Pasos (2 minutos):</p>
-                    <ol class="space-y-1.5 list-decimal list-inside">
-                        <li>Ve a <a href="https://github.com/new" target="_blank" class="text-blue-400 underline">github.com/new</a></li>
-                        <li>Nombre del repositorio: <code class="text-amber-300 bg-slate-900 px-1 rounded">cryptosignal</code></li>
-                        <li>Marca <strong>"Add a README file"</strong> y crea el repo</li>
-                        <li>En el repo, toca <strong>"Add file" → "Upload files"</strong></li>
-                        <li>Sube este archivo .html renombrado a <code class="text-amber-300 bg-slate-900 px-1 rounded">index.html</code></li>
-                        <li>Ve a <strong>Settings → Pages</strong></li>
-                        <li>En "Branch" selecciona <code class="text-amber-300 bg-slate-900 px-1 rounded">main</code> y guarda</li>
-                        <li>En 1 minuto tendrás tu app en:<br><code class="text-emerald-400">https://tunombre.github.io/cryptosignal</code></li>
-                    </ol>
-                </div>
-                <p class="text-slate-500 text-[11px]">Una vez en GitHub Pages, abre la app en Safari del iPhone y añádela a la pantalla de inicio.</p>
-            </div>
-        </div>
-    </div>
-
     <script>
     // ==================== CONFIGURACIÓN v4.4 ====================
     let CONFIG = {
@@ -1037,6 +1206,8 @@
         soundEnabled: true,
         autoTrading: false,
         autoCapitalPct: 0.10,
+        pushNotifications: false,
+        theme: 'dark'
     };
 
     // ==================== ESTADO ====================
@@ -1069,8 +1240,48 @@
         lastError: null,
         retryCount: 0,
         lastErrorAlertTime: 0,
-        stockErrorCount: 0
+        stockErrorCount: 0,
+        pushEnabled: false,
+        lastNewsIds: new Set()
     };
+
+    // ==================== TEMA OSCURO/CLARO ====================
+    function initTheme() {
+        const saved = localStorage.getItem('theme') || 'dark';
+        CONFIG.theme = saved;
+        document.documentElement.setAttribute('data-theme', saved);
+        updateThemeIcon();
+    }
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        CONFIG.theme = next;
+        localStorage.setItem('theme', next);
+        updateThemeIcon();
+
+        // Re-render chart with new colors
+        if (state.chart) {
+            const isDark = next === 'dark';
+            state.chart.applyOptions({
+                layout: {
+                    background: { color: isDark ? '#0c1223' : '#ffffff' },
+                    textColor: isDark ? '#94a3b8' : '#475569'
+                },
+                grid: {
+                    vertLines: { color: isDark ? '#334155' : '#e2e8f0' },
+                    horzLines: { color: isDark ? '#334155' : '#e2e8f0' }
+                }
+            });
+        }
+        saveState();
+    }
+
+    function updateThemeIcon() {
+        const icon = document.getElementById('theme-icon');
+        if (icon) icon.textContent = CONFIG.theme === 'dark' ? '☀️' : '🌙';
+    }
 
     // ==================== AUDIO (Lazy para Safari iOS) ====================
     let audioCtx = null;
@@ -1147,6 +1358,75 @@
         state.soundEnabled = !state.soundEnabled;
         document.getElementById('sound-btn').classList.toggle('text-blue-400', state.soundEnabled);
         document.getElementById('sound-btn').classList.toggle('text-slate-400', !state.soundEnabled);
+    }
+
+    // ==================== PUSH NOTIFICATIONS ====================
+    async function togglePushNotifications() {
+        const toggle = document.getElementById('push-toggle');
+        const label = document.getElementById('push-status-label');
+
+        if (!state.pushEnabled) {
+            if (!('Notification' in window)) {
+                alert('Tu navegador no soporta notificaciones push');
+                return;
+            }
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                state.pushEnabled = true;
+                toggle.classList.add('on');
+                label.textContent = 'Activado';
+                addAlert('info', 'Notificaciones Push', 'Recibirás alertas cuando noticias de alto impacto afecten a tu activo', null);
+            } else {
+                alert('Permiso denegado. Activa notificaciones en ajustes del navegador.');
+            }
+        } else {
+            state.pushEnabled = false;
+            toggle.classList.remove('on');
+            label.textContent = 'Desactivado';
+        }
+        CONFIG.pushNotifications = state.pushEnabled;
+        saveState();
+    }
+
+    function sendPushNotification(title, body, tag = 'cryptosignal') {
+        if (!state.pushEnabled || Notification.permission !== 'granted') return;
+        try {
+            new Notification(title, {
+                body: body,
+                icon: 'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons@master/128/color/btc.png',
+                badge: 'https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons@master/128/color/btc.png',
+                tag: tag,
+                requireInteraction: true,
+                silent: false
+            });
+        } catch (e) {
+            console.error('Push error:', e);
+        }
+    }
+
+    function checkNewsImpactAlerts(newsItem) {
+        if (!newsItem || newsItem.impactLevel !== 'high') return;
+
+        const currentAsset = state.symbol.replace('USDT', '');
+        const isAffected = newsItem.affectedAssets && (
+            newsItem.affectedAssets.includes(currentAsset) ||
+            (currentAsset === 'BTC' && newsItem.affectedAssets.includes('BTC')) ||
+            (currentAsset === 'ETH' && newsItem.affectedAssets.includes('ETH')) ||
+            (currentAsset === 'SOL' && newsItem.affectedAssets.includes('SOL')) ||
+            (currentAsset === 'SPY' && newsItem.affectedAssets.includes('SPY')) ||
+            (currentAsset === 'AAPL' && newsItem.affectedAssets.includes('AAPL'))
+        );
+
+        if (isAffected) {
+            const title = `🔴 ALTO IMPACTO: ${currentAsset}`;
+            const body = newsItem.title;
+
+            // In-app toast
+            addAlert('push', 'Noticia de Alto Impacto', `${currentAsset}: ${newsItem.title}`, newsItem);
+
+            // Browser push
+            sendPushNotification(title, body, `news-${newsItem.id || Date.now()}`);
+        }
     }
 
     // ==================== UTILIDADES ====================
@@ -1243,8 +1523,8 @@
             return;
         }
         container.innerHTML = state.alerts.slice(0, 50).map(a => {
-            const colors = { buy: 'border-emerald-500/20 bg-emerald-500/5', sell: 'border-red-500/20 bg-red-500/5', info: 'border-blue-500/20 bg-blue-500/5', auto: 'border-violet-500/20 bg-violet-500/5', warn: 'border-amber-500/20 bg-amber-500/5' };
-            const textColors = { buy: 'text-emerald-400', sell: 'text-red-400', info: 'text-blue-400', auto: 'text-violet-400', warn: 'text-amber-400' };
+            const colors = { buy: 'border-emerald-500/20 bg-emerald-500/5', sell: 'border-red-500/20 bg-red-500/5', info: 'border-blue-500/20 bg-blue-500/5', auto: 'border-violet-500/20 bg-violet-500/5', warn: 'border-amber-500/20 bg-amber-500/5', push: 'border-amber-500/30 bg-amber-500/10' };
+            const textColors = { buy: 'text-emerald-400', sell: 'text-red-400', info: 'text-blue-400', auto: 'text-violet-400', warn: 'text-amber-400', push: 'text-amber-300' };
             return `
                 <div class="p-2.5 rounded-lg border ${colors[a.type] || colors.info} text-[11px]">
                     <div class="flex justify-between mb-0.5">
@@ -1262,13 +1542,19 @@
         renderAlerts();
     }
 
-    // ==================== FETCH CON TIMEOUT ====================
-    async function fetchWithRetry(url, options = {}, maxRetries = 2, timeoutMs = 10000) {
+    // ==================== FETCH CON TIMEOUT & CORS PROXY ====================
+    async function fetchWithRetry(url, options = {}, maxRetries = 2, timeoutMs = 10000, useProxy = false) {
+        let targetUrl = url;
+        // Use CORS proxy for NewsAPI when running from file://
+        if (useProxy && (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '')) {
+            targetUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+        }
+
         for (let i = 0; i < maxRetries; i++) {
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-                const res = await fetch(url, { ...options, signal: controller.signal });
+                const res = await fetch(targetUrl, { ...options, signal: controller.signal });
                 clearTimeout(timeoutId);
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 return await res.json();
@@ -1528,8 +1814,8 @@
     }
 
     // ==================== DATOS SIMULADOS (MOCK) ====================
-    const MOCK_BASE_PRICES = { 'SPY': 575, 'AAPL': 225, 'BTC': 67500, 'ETH': 3450 };
-    const MOCK_VOLATILITY = { 'SPY': 0.003, 'AAPL': 0.005, 'BTC': 0.008, 'ETH': 0.01 };
+    const MOCK_BASE_PRICES = { 'SPY': 575, 'AAPL': 225, 'BTC': 67500, 'ETH': 3450, 'SOL': 145 };
+    const MOCK_VOLATILITY = { 'SPY': 0.003, 'AAPL': 0.005, 'BTC': 0.008, 'ETH': 0.01, 'SOL': 0.012 };
 
     function generateMockCandles(symbol, interval, count = 400) {
         const cleanSymbol = symbol.replace('USDT', '');
@@ -1672,12 +1958,19 @@
         const container = document.getElementById('chart-container');
         container.innerHTML = '';
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const isDark = CONFIG.theme === 'dark';
         state.chart = LightweightCharts.createChart(container, {
-            layout: { background: { color: '#0c1223' }, textColor: '#94a3b8' },
-            grid: { vertLines: { color: '#334155', style: 2 }, horzLines: { color: '#334155', style: 2 } },
+            layout: { 
+                background: { color: isDark ? '#0c1223' : '#ffffff' }, 
+                textColor: isDark ? '#94a3b8' : '#475569' 
+            },
+            grid: { 
+                vertLines: { color: isDark ? '#334155' : '#e2e8f0', style: 2 }, 
+                horzLines: { color: isDark ? '#334155' : '#e2e8f0', style: 2 } 
+            },
             crosshair: { mode: LightweightCharts.CrosshairMode.Normal, vertLine: { color: '#60a5fa', width: 1.5, style: 2 }, horzLine: { color: '#60a5fa', width: 1.5, style: 2 } },
-            rightPriceScale: { borderColor: '#1e293b', scaleMargins: { top: 0.1, bottom: 0.1 } },
-            timeScale: { borderColor: '#1e293b', timeVisible: true, secondsVisible: false },
+            rightPriceScale: { borderColor: isDark ? '#1e293b' : '#e2e8f0', scaleMargins: { top: 0.1, bottom: 0.1 } },
+            timeScale: { borderColor: isDark ? '#1e293b' : '#e2e8f0', timeVisible: true, secondsVisible: false },
             width: container.clientWidth,
             height: isMobile ? 320 : 460,
             handleScroll: { vertTouchDrag: false },
@@ -2428,7 +2721,7 @@
             if (state.assetType === 'stock') {
                 state.stockErrorCount++;
                 if (state.stockErrorCount >= 3) {
-                    addErrorAlert('Yahoo Finance bloquea conexiones desde archivos locales. Use BTC o ETH para evitar errores.');
+                    addErrorAlert('Yahoo Finance bloquea conexiones desde archivos locales. Use BTC, ETH o SOL para evitar errores.');
                 }
             }
         }
@@ -2463,9 +2756,9 @@
                 console.error('Error fetch principal:', e);
                 if (state.assetType === 'stock') {
                     state.stockErrorCount++;
-                    showSignalError('Yahoo Finance no disponible. Intente con BTC/ETH.', true);
+                    showSignalError('Yahoo Finance no disponible. Intente con BTC/ETH/SOL.', true);
                     if (state.stockErrorCount >= 2) {
-                        addErrorAlert('Yahoo Finance bloquea archivos locales. Use BTC o ETH.');
+                        addErrorAlert('Yahoo Finance bloquea archivos locales. Use BTC, ETH o SOL.');
                     }
                     state.isLoading = false;
                     document.getElementById('chart-loading').style.display = 'none';
@@ -2664,7 +2957,8 @@
             portfolio: state.portfolio,
             config: CONFIG,
             autoMode: state.autoMode,
-            newsApiKey: getNewsApiKey()
+            newsApiKey: getNewsApiKey(),
+            pushEnabled: state.pushEnabled
         });
         if (hasStorage) {
             try { localStorage.setItem('cryptoSignalsV4', payload); } catch (e) { ramStorage = payload; }
@@ -2685,10 +2979,25 @@
                 state.signals = data.signals || [];
                 state.alerts = data.alerts || [];
                 state.portfolio = data.portfolio || { capital: CONFIG.initialCapital, available: CONFIG.initialCapital, positions: [], trades: [], equityHistory: [CONFIG.initialCapital] };
-                if (data.config) CONFIG = { ...CONFIG, ...data.config };
+                if (data.config) {
+                    CONFIG = { ...CONFIG, ...data.config };
+                    // Restore theme
+                    if (CONFIG.theme) {
+                        document.documentElement.setAttribute('data-theme', CONFIG.theme);
+                        updateThemeIcon();
+                    }
+                }
                 state.autoMode = data.autoMode || false;
+                state.pushEnabled = data.pushEnabled || false;
+
                 if (data.newsApiKey) {
                     document.getElementById('newsapi-key').value = data.newsApiKey;
+                }
+
+                // Restore push toggle UI
+                if (state.pushEnabled) {
+                    document.getElementById('push-toggle').classList.add('on');
+                    document.getElementById('push-status-label').textContent = 'Activado';
                 }
 
                 if (state.autoMode) {
@@ -2742,7 +3051,7 @@
         }
     }
 
-    // ==================== NEWSAPI.ORG INTEGRATION (SOLO REALES) ====================
+    // ==================== NEWSAPI.ORG INTEGRATION (con CORS Proxy) ====================
     function getNewsApiKey() {
         return document.getElementById('newsapi-key').value.trim();
     }
@@ -2760,21 +3069,24 @@
         refreshIntel();
     }
 
-    function showGithubInstructions() {
-        document.getElementById('github-modal').classList.remove('hidden');
-    }
-
     const NEWSAPI_ENDPOINTS = [
-        { name: 'Crypto General', q: 'bitcoin OR ethereum OR cryptocurrency OR crypto', type: 'crypto' },
+        { name: 'Crypto General', q: 'bitcoin OR ethereum OR solana OR cryptocurrency OR crypto', type: 'crypto' },
         { name: 'Stocks US', q: 'S&P 500 OR stock market OR Wall Street OR Nasdaq', type: 'stocks' },
         { name: 'Apple', q: 'Apple OR AAPL OR iPhone OR Tim Cook', type: 'stocks' },
         { name: 'Macro Economy', q: 'Federal Reserve OR FOMC OR inflation OR CPI OR recession OR GDP', type: 'macro' },
         { name: 'Geopolitics', q: 'war OR sanctions OR Middle East OR Ukraine OR trade war OR tariff', type: 'macro' }
     ];
 
+    const RSS_FEEDS = [
+        { name: 'CoinDesk', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', type: 'crypto', weight: 1.0 },
+        { name: 'CoinTelegraph', url: 'https://cointelegraph.com/rss', type: 'crypto', weight: 0.9 },
+        { name: 'CryptoNews', url: 'https://cryptonews.com/news/feed/', type: 'crypto', weight: 0.8 },
+    ];
+
     const MACRO_KEYWORDS = {
         'BTC': ['bitcoin', 'btc', 'crypto', 'sec', 'etf', 'halving', 'mineria', 'satoshi', 'blockchain'],
         'ETH': ['ethereum', 'eth', 'vitalik', 'merge', 'pos', 'defi', 'nft', 'layer2', 'sharding'],
+        'SOL': ['solana', 'sol', 'phantom', 'jupiter', 'nft', 'defi', 'staking', 'validator'],
         'SPY': ['sp500', 's&p', 'spy', 'fed', 'fomc', 'tasa', 'inflacion', 'recesion', 'pib', 'gdp', 'nasdaq', 'dow'],
         'AAPL': ['apple', 'aapl', 'iphone', 'tim cook', 'ios', 'mac', 'app store', 'vision pro', 'earnings']
     };
@@ -2788,9 +3100,50 @@
     let newsCache = [];
     let currentNewsFilter = 'all';
 
+    // Multiple CORS proxies for fallback
+    const CORS_PROXIES = [
+        'https://corsproxy.io/?',
+        'https://api.allorigins.win/get?url=',
+        'https://api.codetabs.com/v1/proxy?quest='
+    ];
+
+    async function fetchWithCorsProxy(url, proxyIndex = 0) {
+        if (proxyIndex >= CORS_PROXIES.length) {
+            throw new Error('Todos los proxies CORS fallaron');
+        }
+        const proxy = CORS_PROXIES[proxyIndex];
+        let targetUrl;
+        if (proxy.includes('allorigins')) {
+            targetUrl = proxy + encodeURIComponent(url);
+        } else {
+            targetUrl = proxy + encodeURIComponent(url);
+        }
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const res = await fetch(targetUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+
+            // allorigins wraps response in contents
+            if (proxy.includes('allorigins')) {
+                const data = await res.json();
+                if (data.contents) {
+                    return JSON.parse(data.contents);
+                }
+                return data;
+            }
+            return await res.json();
+        } catch (e) {
+            console.warn(`Proxy ${proxyIndex} falló:`, e.message);
+            return fetchWithCorsProxy(url, proxyIndex + 1);
+        }
+    }
+
     async function fetchNewsAPI() {
         const key = getNewsApiKey();
-        if (!key) return { articles: [], error: 'NO_KEY' };
+        if (!key) return [];
 
         let allArticles = [];
         const now = new Date();
@@ -2799,7 +3152,8 @@
         for (const endpoint of NEWSAPI_ENDPOINTS) {
             try {
                 const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(endpoint.q)}&from=${fromDate}&sortBy=publishedAt&language=en&pageSize=10&apiKey=${key}`;
-                const data = await fetchWithRetry(url, {}, 1, 15000);
+                const data = await fetchWithCorsProxy(url);
+
                 if (data.status === 'ok' && data.articles) {
                     const articles = data.articles.map(a => ({
                         title: a.title,
@@ -2810,12 +3164,19 @@
                         description: a.description?.substring(0, 300) || ''
                     }));
                     allArticles = allArticles.concat(articles);
+                } else if (data.status === 'error') {
+                    console.warn('NewsAPI error:', data.message || 'Unknown error');
+                    // Show error to user
+                    if (data.message && data.message.includes('rateLimit')) {
+                        document.getElementById('newsapi-status').textContent = '⚠️ Límite de 100 req/día alcanzado. Espera mañana o usa RSS.';
+                        document.getElementById('newsapi-status').className = 'text-[10px] mt-2 text-amber-400';
+                    } else if (data.message && data.message.includes('apiKey')) {
+                        document.getElementById('newsapi-status').textContent = '❌ API Key inválida. Verifica en newsapi.org';
+                        document.getElementById('newsapi-status').className = 'text-[10px] mt-2 text-red-400';
+                    }
                 }
             } catch (e) {
-                console.warn('NewsAPI error:', endpoint.name, e.message);
-                if (e.message && e.message.includes('CORS')) {
-                    return { articles: [], error: 'CORS' };
-                }
+                console.warn('NewsAPI endpoint error:', endpoint.name, e.message);
             }
         }
 
@@ -2828,7 +3189,26 @@
         });
 
         allArticles.sort((a, b) => b.pubDate - a.pubDate);
-        return { articles: allArticles.slice(0, 30), error: null };
+        return allArticles.slice(0, 30);
+    }
+
+    async function fetchRSS(feed) {
+        try {
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}&count=10`;
+            const data = await fetchWithRetry(apiUrl, {}, 1, 8000);
+            if (data.status !== 'ok' || !data.items) return [];
+            return data.items.map(item => ({
+                title: item.title,
+                link: item.link,
+                pubDate: new Date(item.pubDate).getTime(),
+                source: feed.name,
+                type: feed.type,
+                description: item.description?.replace(/<[^>]*>/g, '').substring(0, 200) || ''
+            }));
+        } catch (e) {
+            console.warn('RSS falló:', feed.name, e.message);
+            return [];
+        }
     }
 
     function analyzeNewsImpact(title, desc) {
@@ -2857,6 +3237,7 @@
         if (affectedAssets.length === 0) {
             if (text.includes('bitcoin') || text.includes('crypto')) affectedAssets.push('BTC');
             if (text.includes('ethereum')) affectedAssets.push('ETH');
+            if (text.includes('solana')) affectedAssets.push('SOL');
             if (text.includes('stock') || text.includes('mercado') || text.includes('market')) affectedAssets.push('SPY');
         }
 
@@ -2864,64 +3245,91 @@
     }
 
     async function fetchNews() {
+        document.getElementById('intel-status').textContent = 'Cargando noticias...';
+        let allNews = [];
+        let newsApiSuccess = false;
+
+        // Intentar NewsAPI primero si hay key (con proxy CORS)
         const key = getNewsApiKey();
-        const container = document.getElementById('news-container');
-
-        if (!key) {
-            document.getElementById('intel-status').textContent = 'Esperando API key...';
-            container.innerHTML = `
-                <div class="col-span-2 p-6 rounded-xl bg-slate-900/30 border border-slate-700/30 text-center">
-                    <div class="text-2xl mb-2">🔑</div>
-                    <div class="text-sm font-semibold text-slate-300 mb-1">API key requerida</div>
-                    <div class="text-[11px] text-slate-500 max-w-md mx-auto mb-3">
-                        Introduce tu API key gratuita de NewsAPI.org arriba para cargar noticias reales de Bloomberg, Reuters, CoinDesk, CNBC y más.
-                    </div>
-                    <button onclick="window.open('https://newsapi.org/register','_blank')" class="px-4 py-2 rounded-lg bg-blue-600/20 border border-blue-600/30 text-blue-400 text-xs font-semibold hover:bg-blue-600/30 transition">Obtener Key Gratis</button>
-                </div>
-            `;
-            return;
+        if (key) {
+            try {
+                const apiNews = await fetchNewsAPI();
+                if (apiNews.length > 0) {
+                    allNews = apiNews;
+                    newsApiSuccess = true;
+                    document.getElementById('newsapi-status').textContent = '✅ NewsAPI conectado — ' + apiNews.length + ' noticias reales';
+                    document.getElementById('newsapi-status').className = 'text-[10px] mt-2 text-emerald-400';
+                } else {
+                    document.getElementById('newsapi-status').textContent = '⚠️ NewsAPI respondió pero sin artículos. Verifica tu key.';
+                    document.getElementById('newsapi-status').className = 'text-[10px] mt-2 text-amber-400';
+                }
+            } catch (e) {
+                console.error('NewsAPI completamente falló:', e);
+                document.getElementById('newsapi-status').textContent = '❌ Error conectando NewsAPI. Usando RSS fallback...';
+                document.getElementById('newsapi-status').className = 'text-[10px] mt-2 text-red-400';
+            }
         }
 
-        document.getElementById('intel-status').textContent = 'Cargando noticias reales...';
-
-        const result = await fetchNewsAPI();
-
-        if (result.error === 'CORS') {
-            document.getElementById('intel-status').textContent = 'Error CORS — Sube la app a GitHub Pages';
-            container.innerHTML = `
-                <div class="col-span-2 p-6 rounded-xl bg-red-500/5 border border-red-500/15 text-center">
-                    <div class="text-2xl mb-2">🚫</div>
-                    <div class="text-sm font-semibold text-red-300 mb-1">Bloqueo CORS detectado</div>
-                    <div class="text-[11px] text-slate-400 max-w-md mx-auto mb-3">
-                        Tu navegador bloquea las peticiones a NewsAPI desde un archivo local. Sube la app a GitHub Pages para solucionarlo.
-                    </div>
-                    <button onclick="showGithubInstructions()" class="px-4 py-2 rounded-lg bg-blue-600/20 border border-blue-600/30 text-blue-400 text-xs font-semibold hover:bg-blue-600/30 transition">Ver instrucciones</button>
-                </div>
-            `;
-            return;
+        // Fallback a RSS si NewsAPI falló o no hay key
+        if (allNews.length === 0) {
+            for (const feed of RSS_FEEDS) {
+                const items = await fetchRSS(feed);
+                allNews = allNews.concat(items);
+            }
+            document.getElementById('intel-status').textContent = allNews.length > 0 ? `RSS activo — ${allNews.length} noticias` : 'Usando noticias de demo';
+        } else {
+            document.getElementById('intel-status').textContent = `NewsAPI activo — ${allNews.length} noticias reales`;
         }
 
-        if (result.articles.length === 0) {
-            document.getElementById('intel-status').textContent = 'Sin noticias disponibles';
-            container.innerHTML = `
-                <div class="col-span-2 p-6 rounded-xl bg-slate-900/30 border border-slate-700/30 text-center">
-                    <div class="text-2xl mb-2">📭</div>
-                    <div class="text-sm font-semibold text-slate-300 mb-1">Sin noticias</div>
-                    <div class="text-[11px] text-slate-500 max-w-md mx-auto">
-                        No se encontraron noticias recientes. La API key puede ser inválida o haberse agotado el límite diario (100 req/día).
-                    </div>
-                </div>
-            `;
-            return;
+        if (allNews.length === 0) {
+            allNews = generateDemoNews();
+            document.getElementById('intel-status').textContent = 'Modo demo — Noticias de ejemplo';
+            if (!key) {
+                document.getElementById('newsapi-status').textContent = '⚠️ Introduce tu API key de NewsAPI.org para noticias reales';
+                document.getElementById('newsapi-status').className = 'text-[10px] mt-2 text-amber-400';
+            }
         }
 
-        newsCache = result.articles.map(n => {
+        allNews.sort((a, b) => b.pubDate - a.pubDate);
+        allNews = allNews.slice(0, 20);
+
+        // Process news and check for high impact alerts
+        newsCache = allNews.map(n => {
             const analysis = analyzeNewsImpact(n.title, n.description);
-            return { ...n, ...analysis };
+            const newsItem = { ...n, ...analysis, id: n.link || n.title };
+
+            // Check for push alerts on high impact news affecting current asset
+            if (!state.lastNewsIds.has(newsItem.id)) {
+                state.lastNewsIds.add(newsItem.id);
+                if (state.lastNewsIds.size > 100) {
+                    const iter = state.lastNewsIds.values();
+                    state.lastNewsIds.delete(iter.next().value);
+                }
+                checkNewsImpactAlerts(newsItem);
+            }
+
+            return newsItem;
         });
 
-        document.getElementById('intel-status').textContent = `${newsCache.length} noticias reales cargadas`;
         renderNews();
+        updateSentiment();
+        renderCorrelationMatrix();
+    }
+
+    function generateDemoNews() {
+        const now = Date.now();
+        const demos = [
+            { title: 'Bitcoin supera los $70.000 tras aprobación de ETF en Asia', source: 'CoinDesk', type: 'crypto', pubDate: now - 3600000 },
+            { title: 'Solana alcanza nuevo ATH impulsado por DeFi y NFTs', source: 'CoinTelegraph', type: 'crypto', pubDate: now - 1800000 },
+            { title: 'La FED mantiene tasas sin cambios: mercados reaccionan al alza', source: 'Bloomberg', type: 'macro', pubDate: now - 7200000 },
+            { title: 'Apple anuncia nuevos modelos de iPhone: acciones suben un 3%', source: 'Reuters', type: 'stocks', pubDate: now - 10800000 },
+            { title: 'Ethereum completa actualización Dencun: comisiones caen un 90%', source: 'CoinTelegraph', type: 'crypto', pubDate: now - 14400000 },
+            { title: 'Tensiones geopolíticas en Oriente Medio impulsan demanda de oro y Bitcoin', source: 'CryptoNews', type: 'macro', pubDate: now - 18000000 },
+            { title: 'El S&P 500 marca nuevo máximo histórico impulsado por tecnológicas', source: 'MarketWatch', type: 'stocks', pubDate: now - 21600000 },
+            { title: 'SEC retrasa decisión sobre ETF de Solana: mercado en espera', source: 'CoinDesk', type: 'crypto', pubDate: now - 25200000 },
+            { title: 'Inflación en EEUU baja al 2,8%: expectativas de recorte de tasas crecen', source: 'Reuters', type: 'macro', pubDate: now - 28800000 },
+        ];
+        return demos.map(d => ({ ...d, description: d.title, link: '#' }));
     }
 
     function renderNews() {
@@ -2977,6 +3385,83 @@
         const hours = Math.floor(mins / 60);
         if (hours < 24) return hours + 'h';
         return Math.floor(hours / 24) + 'd';
+    }
+
+    // ==================== CORRELATION MATRIX ====================
+    function renderCorrelationMatrix() {
+        const assets = ['BTC', 'ETH', 'SOL', 'SPY', 'AAPL'];
+        const matrix = document.getElementById('correlation-matrix');
+
+        // Calculate sentiment correlation based on news
+        const correlations = {};
+        assets.forEach(a => correlations[a] = {});
+
+        for (let i = 0; i < assets.length; i++) {
+            for (let j = 0; j < assets.length; j++) {
+                if (i === j) {
+                    correlations[assets[i]][assets[j]] = 1.0;
+                } else {
+                    // Simple correlation based on shared news impact
+                    const newsI = newsCache.filter(n => n.affectedAssets.includes(assets[i]));
+                    const newsJ = newsCache.filter(n => n.affectedAssets.includes(assets[j]));
+                    const shared = newsCache.filter(n => n.affectedAssets.includes(assets[i]) && n.affectedAssets.includes(assets[j]));
+
+                    let corr = 0;
+                    if (newsI.length > 0 && newsJ.length > 0) {
+                        corr = shared.length / Math.max(newsI.length, newsJ.length);
+                        // Adjust based on sentiment direction
+                        const sentI = getAssetSentiment(assets[i]);
+                        const sentJ = getAssetSentiment(assets[j]);
+                        if ((sentI > 50 && sentJ > 50) || (sentI < 50 && sentJ < 50)) {
+                            corr = corr * 0.5 + 0.5; // Positive correlation
+                        } else {
+                            corr = corr * 0.5; // Negative correlation
+                        }
+                    }
+                    correlations[assets[i]][assets[j]] = Math.max(-1, Math.min(1, corr));
+                }
+            }
+        }
+
+        // Render grid
+        let html = '<div class="corr-label"></div>';
+        assets.forEach(a => {
+            html += `<div class="corr-label">${a}</div>`;
+        });
+
+        assets.forEach(row => {
+            html += `<div class="corr-label flex items-center justify-end pr-1">${row}</div>`;
+            assets.forEach(col => {
+                const val = correlations[row][col];
+                const isDiag = row === col;
+                let bg, color;
+                if (isDiag) {
+                    bg = 'rgba(148, 163, 184, 0.2)';
+                    color = '#94a3b8';
+                } else if (val > 0.3) {
+                    bg = `rgba(16, 185, 129, ${val * 0.3})`;
+                    color = '#4ade80';
+                } else if (val < -0.3) {
+                    bg = `rgba(239, 68, 68, ${Math.abs(val) * 0.3})`;
+                    color = '#fb7185';
+                } else {
+                    bg = 'rgba(100, 116, 139, 0.1)';
+                    color = '#64748b';
+                }
+                html += `<div class="corr-cell" style="background:${bg};color:${color}" title="${row} vs ${col}: ${(val*100).toFixed(0)}%">${isDiag ? '—' : (val*100).toFixed(0)}</div>`;
+            });
+        });
+
+        matrix.innerHTML = html;
+    }
+
+    function getAssetSentiment(asset) {
+        const el = document.getElementById('sent-' + asset.toLowerCase());
+        if (!el) return 50;
+        const text = el.textContent;
+        if (text.includes('ALCISTA')) return 70;
+        if (text.includes('BAJISTA')) return 30;
+        return 50;
     }
 
     // ==================== CALENDARIO ECONÓMICO ====================
@@ -3061,7 +3546,7 @@
             { icon: '🏛️', title: 'Elecciones EEUU 2026', desc: 'Campaña electoral genera volatilidad. Tecnológicas sensibles a regulación.', impact: 'SPY, AAPL', risk: 'medium' },
             { icon: '🌊', title: 'Cambio climático / Catástrofes', desc: 'Huracanes o sequías afectan cadenas de suministro y seguros.', impact: 'SPY', risk: 'medium' },
             { icon: '💰', title: 'Deuda soberana global', desc: 'Niveles récord de deuda en EEUU y Europa. Riesgo de crisis de deuda.', impact: 'SPY, BTC', risk: 'high' },
-            { icon: '🔧', title: 'Regulación crypto', desc: 'MiCA en Europa y regulación SEC en EEUU. Impacto directo en BTC/ETH.', impact: 'BTC, ETH', risk: 'medium' },
+            { icon: '🔧', title: 'Regulación crypto', desc: 'MiCA en Europa y regulación SEC en EEUU. Impacto directo en BTC/ETH/SOL.', impact: 'BTC, ETH, SOL', risk: 'medium' },
             { icon: '🤖', title: 'Revolución IA', desc: 'Apple y otras tecnológicas invierten masivamente. Potencial alza sector tech.', impact: 'AAPL, SPY', risk: 'low' },
         ];
         return events;
@@ -3095,6 +3580,7 @@
         const assets = [
             { id: 'btc', name: 'BTC', symbol: 'BTCUSDT', type: 'crypto' },
             { id: 'eth', name: 'ETH', symbol: 'ETHUSDT', type: 'crypto' },
+            { id: 'sol', name: 'SOL', symbol: 'SOLUSDT', type: 'crypto' },
             { id: 'spy', name: 'SPY', symbol: 'SPY', type: 'stock' },
             { id: 'aapl', name: 'AAPL', symbol: 'AAPL', type: 'stock' }
         ];
@@ -3105,18 +3591,18 @@
             const highImpact = newsForAsset.filter(n => n.impactLevel === 'high');
             const bullishNews = newsForAsset.filter(n => {
                 const t = n.title.toLowerCase();
-                return t.includes('sube') || t.includes('alza') || t.includes('rally') || t.includes('bull') || t.includes('supera') || t.includes('surge') || t.includes('rise') || t.includes('gain');
+                return t.includes('sube') || t.includes('alza') || t.includes('rally') || t.includes('bull') || t.includes('supera') || t.includes('surge') || t.includes('rise') || t.includes('gain') || t.includes('ath') || t.includes('record');
             }).length;
             const bearishNews = newsForAsset.filter(n => {
                 const t = n.title.toLowerCase();
-                return t.includes('baja') || t.includes('cae') || t.includes('crash') || t.includes('bear') || t.includes('caída') || t.includes('drop') || t.includes('fall') || t.includes('plunge');
+                return t.includes('baja') || t.includes('cae') || t.includes('crash') || t.includes('bear') || t.includes('caída') || t.includes('drop') || t.includes('fall') || t.includes('plunge') || t.includes('hack') || t.includes('exploit');
             }).length;
 
             if (newsForAsset.length > 0) {
                 bullish = 50 + (bullishNews - bearishNews) * 10 + (highImpact.length > 0 ? (bullishNews > bearishNews ? 10 : -10) : 0);
             }
 
-            if (state.indicators.rsi) {
+            if (state.indicators.rsi && asset.symbol === state.symbol) {
                 const rsi = state.indicators.rsi[state.indicators.rsi.length - 1];
                 if (rsi !== null && rsi !== undefined) {
                     bullish = (bullish + (rsi > 50 ? 60 : 40)) / 2;
@@ -3140,10 +3626,10 @@
         await fetchNews();
         renderEconomicCalendar();
         renderMacroEvents();
-        updateSentiment();
     }
 
     // ==================== INICIO ====================
+    initTheme();
     initChart();
     loadState();
     updatePrices();
