@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-title" content="CryptoSignal Pro">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#02040a">
-    <title>CryptoSignal Pro v4.4 - Trading Simulator</title>
+    <title>CryptoSignal Pro v4.5 - Trading Simulator</title>
     <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -547,7 +547,7 @@
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-violet-700 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/10">CS</div>
                 <div>
-                    <h1 class="font-bold text-[15px] tracking-tight">CryptoSignal Pro <span class="text-[11px] font-normal text-blue-400 ml-1">v4.4</span></h1>
+                    <h1 class="font-bold text-[15px] tracking-tight">CryptoSignal Pro <span class="text-[11px] font-normal text-blue-400 ml-1">v4.5</span></h1>
                     <p class="text-[11px] text-slate-400">Simulador Avanzado Multi-Activo</p>
                 </div>
             </div>
@@ -1105,7 +1105,7 @@
 
     <!-- Footer -->
     <footer class="max-w-[1500px] mx-auto px-4 py-6 text-center text-[11px] text-slate-500 border-t border-slate-800/20 mt-4">
-        <p>CryptoSignal Pro v4.4 — Simulador educativo. No conecta con exchanges reales.</p>
+        <p>CryptoSignal Pro v4.5 — Simulador educativo. No conecta con exchanges reales.</p>
         <p class="mt-1">BTC/ETH/SOL: datos reales vía Binance | SPY/AAPL: simulación cuando Yahoo no disponible | Noticias: NewsAPI.org + RSS</p>
     </footer>
 
@@ -1190,7 +1190,7 @@
     </div>
 
     <script>
-    // ==================== CONFIGURACIÓN v4.4 ====================
+    // ==================== CONFIGURACIÓN v4.5 ====================
     let CONFIG = {
         initialCapital: 10000,
         riskPerTrade: 0.10,
@@ -3070,20 +3070,99 @@
     }
 
     const NEWSAPI_ENDPOINTS = [
-        { name: 'Crypto General', q: 'bitcoin OR ethereum OR solana OR cryptocurrency OR crypto', type: 'crypto' },
-        { name: 'Stocks US', q: 'S&P 500 OR stock market OR Wall Street OR Nasdaq', type: 'stocks' },
-        { name: 'Apple', q: 'Apple OR AAPL OR iPhone OR Tim Cook', type: 'stocks' },
-        { name: 'Macro Economy', q: 'Federal Reserve OR FOMC OR inflation OR CPI OR recession OR GDP', type: 'macro' },
-        { name: 'Geopolitics', q: 'war OR sanctions OR Middle East OR Ukraine OR trade war OR tariff', type: 'macro' }
+        // Español primero
+        { name: 'Crypto ES', q: 'bitcoin OR ethereum OR solana OR criptomoneda OR cripto', type: 'crypto', lang: 'es' },
+        { name: 'Mercados ES', q: 'mercado financiero OR bolsa OR Wall Street OR Nasdaq', type: 'stocks', lang: 'es' },
+        { name: 'Apple ES', q: 'Apple OR iPhone OR Tim Cook', type: 'stocks', lang: 'es' },
+        { name: 'Macro ES', q: 'Reserva Federal OR FED OR inflación OR recesión OR PIB', type: 'macro', lang: 'es' },
+        { name: 'Geopolítica ES', q: 'guerra OR sanciones OR Oriente Medio OR Ucrania OR aranceles', type: 'macro', lang: 'es' },
+        // Inglés como respaldo (se traducirán)
+        { name: 'Crypto EN', q: 'bitcoin OR ethereum OR solana OR cryptocurrency', type: 'crypto', lang: 'en' },
+        { name: 'Markets EN', q: 'stock market OR Wall Street OR Nasdaq OR S&P 500', type: 'stocks', lang: 'en' },
+        { name: 'Apple EN', q: 'Apple OR AAPL OR iPhone', type: 'stocks', lang: 'en' },
+        { name: 'Macro EN', q: 'Federal Reserve OR FOMC OR inflation OR CPI OR GDP', type: 'macro', lang: 'en' }
     ];
 
     const RSS_FEEDS = [
-        { name: 'CoinDesk', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', type: 'crypto', weight: 1.0 },
-        { name: 'CoinTelegraph', url: 'https://cointelegraph.com/rss', type: 'crypto', weight: 0.9 },
-        { name: 'CryptoNews', url: 'https://cryptonews.com/news/feed/', type: 'crypto', weight: 0.8 },
+        // Español
+        { name: 'Cointelegraph ES', url: 'https://es.cointelegraph.com/rss', type: 'crypto', weight: 1.0, lang: 'es' },
+        { name: 'CryptoNoticias', url: 'https://www.criptonoticias.com/feed/', type: 'crypto', weight: 0.9, lang: 'es' },
+        { name: 'El Economista Crypto', url: 'https://www.eleconomista.es/rss/mercados-cotizaciones', type: 'stocks', weight: 0.8, lang: 'es' },
+        { name: 'Expansion', url: 'https://expansion.mx/rss', type: 'macro', weight: 0.7, lang: 'es' },
+        // Inglés (se traducirán)
+        { name: 'CoinDesk', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', type: 'crypto', weight: 0.6, lang: 'en' },
+        { name: 'CoinTelegraph EN', url: 'https://cointelegraph.com/rss', type: 'crypto', weight: 0.5, lang: 'en' },
     ];
 
-    const MACRO_KEYWORDS = {
+    // ==================== TRADUCCIÓN AUTOMÁTICA ====================
+    const translationCache = new Map();
+    const TRANSLATION_QUEUE = [];
+    let isTranslating = false;
+
+    async function translateText(text, sourceLang = 'en', targetLang = 'es') {
+        if (!text || text.trim().length === 0) return text;
+        if (sourceLang === 'es') return text; // Ya está en español
+
+        const cacheKey = text.trim().substring(0, 200); // Cache por los primeros 200 chars
+        if (translationCache.has(cacheKey)) {
+            return translationCache.get(cacheKey);
+        }
+
+        try {
+            // MyMemory API gratuita (1000 palabras/día sin key, más con email)
+            const encoded = encodeURIComponent(text.trim().substring(0, 450));
+            const url = `https://api.mymemory.translated.net/get?q=${encoded}&langpair=${sourceLang}|${targetLang}`;
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+
+            if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+                const translated = data.responseData.translatedText;
+                translationCache.set(cacheKey, translated);
+                // Limitar tamaño de caché
+                if (translationCache.size > 500) {
+                    const firstKey = translationCache.keys().next().value;
+                    translationCache.delete(firstKey);
+                }
+                return translated;
+            }
+        } catch (e) {
+            console.warn('Error traduciendo:', e.message);
+        }
+        return text; // Fallback: devolver original
+    }
+
+    async function translateBatch(items) {
+        const results = [];
+        for (const item of items) {
+            if (item.lang === 'es' || !item.title) {
+                results.push(item);
+                continue;
+            }
+            try {
+                const [translatedTitle, translatedDesc] = await Promise.all([
+                    translateText(item.title, 'en', 'es'),
+                    item.description ? translateText(item.description, 'en', 'es') : Promise.resolve('')
+                ]);
+                results.push({
+                    ...item,
+                    title: translatedTitle,
+                    description: translatedDesc,
+                    _translated: true
+                });
+            } catch (e) {
+                results.push(item);
+            }
+        }
+        return results;
+    }
+
+    // ==================== MACRO KEYWORDS ====================
         'BTC': ['bitcoin', 'btc', 'crypto', 'sec', 'etf', 'halving', 'mineria', 'satoshi', 'blockchain'],
         'ETH': ['ethereum', 'eth', 'vitalik', 'merge', 'pos', 'defi', 'nft', 'layer2', 'sharding'],
         'SOL': ['solana', 'sol', 'phantom', 'jupiter', 'nft', 'defi', 'staking', 'validator'],
@@ -3151,7 +3230,8 @@
 
         for (const endpoint of NEWSAPI_ENDPOINTS) {
             try {
-                const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(endpoint.q)}&from=${fromDate}&sortBy=publishedAt&language=en&pageSize=10&apiKey=${key}`;
+                const langParam = endpoint.lang || 'en';
+                const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(endpoint.q)}&from=${fromDate}&sortBy=publishedAt&language=${langParam}&pageSize=10&apiKey=${key}`;
                 const data = await fetchWithCorsProxy(url);
 
                 if (data.status === 'ok' && data.articles) {
@@ -3161,12 +3241,12 @@
                         pubDate: new Date(a.publishedAt).getTime(),
                         source: a.source?.name || endpoint.name,
                         type: endpoint.type,
-                        description: a.description?.substring(0, 300) || ''
+                        description: a.description?.substring(0, 300) || '',
+                        lang: langParam
                     }));
                     allArticles = allArticles.concat(articles);
                 } else if (data.status === 'error') {
                     console.warn('NewsAPI error:', data.message || 'Unknown error');
-                    // Show error to user
                     if (data.message && data.message.includes('rateLimit')) {
                         document.getElementById('newsapi-status').textContent = '⚠️ Límite de 100 req/día alcanzado. Espera mañana o usa RSS.';
                         document.getElementById('newsapi-status').className = 'text-[10px] mt-2 text-amber-400';
@@ -3203,7 +3283,8 @@
                 pubDate: new Date(item.pubDate).getTime(),
                 source: feed.name,
                 type: feed.type,
-                description: item.description?.replace(/<[^>]*>/g, '').substring(0, 200) || ''
+                description: item.description?.replace(/<[^>]*>/g, '').substring(0, 200) || '',
+                lang: feed.lang || 'en'
             }));
         } catch (e) {
             console.warn('RSS falló:', feed.name, e.message);
@@ -3293,6 +3374,17 @@
         allNews.sort((a, b) => b.pubDate - a.pubDate);
         allNews = allNews.slice(0, 20);
 
+        // ========== TRADUCCIÓN AUTOMÁTICA ==========
+        const englishNews = allNews.filter(n => n.lang === 'en');
+        const spanishNews = allNews.filter(n => n.lang === 'es');
+
+        if (englishNews.length > 0) {
+            document.getElementById('intel-status').textContent = `Traduciendo ${englishNews.length} noticias al español...`;
+            const translated = await translateBatch(englishNews);
+            allNews = [...spanishNews, ...translated];
+            allNews.sort((a, b) => b.pubDate - a.pubDate);
+        }
+
         // Process news and check for high impact alerts
         newsCache = allNews.map(n => {
             const analysis = analyzeNewsImpact(n.title, n.description);
@@ -3319,15 +3411,15 @@
     function generateDemoNews() {
         const now = Date.now();
         const demos = [
-            { title: 'Bitcoin supera los $70.000 tras aprobación de ETF en Asia', source: 'CoinDesk', type: 'crypto', pubDate: now - 3600000 },
-            { title: 'Solana alcanza nuevo ATH impulsado por DeFi y NFTs', source: 'CoinTelegraph', type: 'crypto', pubDate: now - 1800000 },
-            { title: 'La FED mantiene tasas sin cambios: mercados reaccionan al alza', source: 'Bloomberg', type: 'macro', pubDate: now - 7200000 },
-            { title: 'Apple anuncia nuevos modelos de iPhone: acciones suben un 3%', source: 'Reuters', type: 'stocks', pubDate: now - 10800000 },
-            { title: 'Ethereum completa actualización Dencun: comisiones caen un 90%', source: 'CoinTelegraph', type: 'crypto', pubDate: now - 14400000 },
-            { title: 'Tensiones geopolíticas en Oriente Medio impulsan demanda de oro y Bitcoin', source: 'CryptoNews', type: 'macro', pubDate: now - 18000000 },
-            { title: 'El S&P 500 marca nuevo máximo histórico impulsado por tecnológicas', source: 'MarketWatch', type: 'stocks', pubDate: now - 21600000 },
-            { title: 'SEC retrasa decisión sobre ETF de Solana: mercado en espera', source: 'CoinDesk', type: 'crypto', pubDate: now - 25200000 },
-            { title: 'Inflación en EEUU baja al 2,8%: expectativas de recorte de tasas crecen', source: 'Reuters', type: 'macro', pubDate: now - 28800000 },
+            { title: 'Bitcoin supera los $70.000 tras aprobación de ETF en Asia', source: 'CoinDesk ES', type: 'crypto', pubDate: now - 3600000, lang: 'es' },
+            { title: 'Solana alcanza nuevo máximo histórico impulsado por DeFi y NFTs', source: 'Cointelegraph ES', type: 'crypto', pubDate: now - 1800000, lang: 'es' },
+            { title: 'La Reserva Federal mantiene tasas sin cambios: mercados reaccionan al alza', source: 'Bloomberg', type: 'macro', pubDate: now - 7200000, lang: 'es' },
+            { title: 'Apple anuncia nuevos modelos de iPhone: acciones suben un 3%', source: 'Reuters', type: 'stocks', pubDate: now - 10800000, lang: 'es' },
+            { title: 'Ethereum completa actualización Dencun: comisiones caen un 90%', source: 'Cointelegraph ES', type: 'crypto', pubDate: now - 14400000, lang: 'es' },
+            { title: 'Tensiones geopolíticas en Oriente Medio impulsan demanda de oro y Bitcoin', source: 'CryptoNoticias', type: 'macro', pubDate: now - 18000000, lang: 'es' },
+            { title: 'El S&P 500 marca nuevo máximo histórico impulsado por tecnológicas', source: 'MarketWatch', type: 'stocks', pubDate: now - 21600000, lang: 'es' },
+            { title: 'La SEC retrasa decisión sobre ETF de Solana: mercado en espera', source: 'CoinDesk ES', type: 'crypto', pubDate: now - 25200000, lang: 'es' },
+            { title: 'La inflación en EE.UU. baja al 2,8%: crecen las expectativas de recorte de tasas', source: 'Reuters', type: 'macro', pubDate: now - 28800000, lang: 'es' },
         ];
         return demos.map(d => ({ ...d, description: d.title, link: '#' }));
     }
@@ -3348,10 +3440,14 @@
             const impactText = n.impactLevel === 'high' ? 'ALTO' : n.impactLevel === 'medium' ? 'MEDIO' : 'BAJO';
             const assets = n.affectedAssets.length > 0 ? n.affectedAssets.join(', ') : 'General';
             const timeAgo = formatTimeAgo(n.pubDate);
+            const translatedBadge = n._translated ? '<span class="tag tag-blue ml-1" style="font-size:9px">🇪🇸 Traducido</span>' : '';
             return `
                 <a href="${n.link}" target="_blank" class="news-card block">
                     <div class="flex items-center justify-between mb-1">
-                        <span class="source text-blue-400">${n.source}</span>
+                        <div class="flex items-center gap-1">
+                            <span class="source text-blue-400">${n.source}</span>
+                            ${translatedBadge}
+                        </div>
                         <span class="impact-tag ${impactClass}">${impactText}</span>
                     </div>
                     <div class="title">${escapeHtml(n.title)}</div>
