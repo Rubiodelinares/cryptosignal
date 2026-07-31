@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-title" content="CryptoSignal Pro">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#02040a">
-    <title>CryptoSignal Pro v4.4 - Trading Simulator</title>
+    <title>CryptoSignal Pro v4.5 - Trading Simulator</title>
     <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -547,7 +547,7 @@
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-violet-700 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/10">CS</div>
                 <div>
-                    <h1 class="font-bold text-[15px] tracking-tight">CryptoSignal Pro <span class="text-[11px] font-normal text-blue-400 ml-1">v4.4</span></h1>
+                    <h1 class="font-bold text-[15px] tracking-tight">CryptoSignal Pro <span class="text-[11px] font-normal text-blue-400 ml-1">v4.5</span></h1>
                     <p class="text-[11px] text-slate-400">Simulador Avanzado Multi-Activo</p>
                 </div>
             </div>
@@ -1105,7 +1105,7 @@
 
     <!-- Footer -->
     <footer class="max-w-[1500px] mx-auto px-4 py-6 text-center text-[11px] text-slate-500 border-t border-slate-800/20 mt-4">
-        <p>CryptoSignal Pro v4.4 — Simulador educativo. No conecta con exchanges reales.</p>
+        <p>CryptoSignal Pro v4.5 — Simulador educativo. No conecta con exchanges reales.</p>
         <p class="mt-1">BTC/ETH/SOL: datos reales vía Binance | SPY/AAPL: simulación cuando Yahoo no disponible | Noticias: NewsAPI.org + RSS</p>
     </footer>
 
@@ -3083,7 +3083,68 @@
         { name: 'CryptoNews', url: 'https://cryptonews.com/news/feed/', type: 'crypto', weight: 0.8 },
     ];
 
-    const MACRO_KEYWORDS = {
+    // ==================== TRADUCCIÓN AUTOMÁTICA ====================
+    const translationCache = new Map();
+
+    async function translateText(text, sourceLang, targetLang) {
+        if (!text || text.trim().length === 0) return text;
+        if (sourceLang === 'es') return text;
+
+        const cacheKey = text.trim().substring(0, 200);
+        if (translationCache.has(cacheKey)) {
+            return translationCache.get(cacheKey);
+        }
+
+        try {
+            const encoded = encodeURIComponent(text.trim().substring(0, 450));
+            const url = 'https://api.mymemory.translated.net/get?q=' + encoded + '&langpair=' + sourceLang + '|' + targetLang;
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(function() { controller.abort(); }, 8000);
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+
+            if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+                const translated = data.responseData.translatedText;
+                translationCache.set(cacheKey, translated);
+                if (translationCache.size > 500) {
+                    const firstKey = translationCache.keys().next().value;
+                    translationCache.delete(firstKey);
+                }
+                return translated;
+            }
+        } catch (e) {
+            console.warn('Error traduciendo:', e.message);
+        }
+        return text;
+    }
+
+    async function translateBatch(items) {
+        const results = [];
+        for (const item of items) {
+            if (item.lang === 'es' || !item.title) {
+                results.push(item);
+                continue;
+            }
+            try {
+                const translatedTitle = await translateText(item.title, 'en', 'es');
+                const translatedDesc = item.description ? await translateText(item.description, 'en', 'es') : '';
+                results.push(Object.assign({}, item, {
+                    title: translatedTitle,
+                    description: translatedDesc,
+                    _translated: true
+                }));
+            } catch (e) {
+                results.push(item);
+            }
+        }
+        return results;
+    }
+
+const MACRO_KEYWORDS = {
         'BTC': ['bitcoin', 'btc', 'crypto', 'sec', 'etf', 'halving', 'mineria', 'satoshi', 'blockchain'],
         'ETH': ['ethereum', 'eth', 'vitalik', 'merge', 'pos', 'defi', 'nft', 'layer2', 'sharding'],
         'SOL': ['solana', 'sol', 'phantom', 'jupiter', 'nft', 'defi', 'staking', 'validator'],
@@ -3151,26 +3212,29 @@
 
         for (const endpoint of NEWSAPI_ENDPOINTS) {
             try {
-                const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(endpoint.q)}&from=${fromDate}&sortBy=publishedAt&language=en&pageSize=10&apiKey=${key}`;
-                const data = await fetchWithCorsProxy(url);
+                var langParam = endpoint.lang || 'en';
+                var url = 'https://newsapi.org/v2/everything?q=' + encodeURIComponent(endpoint.q) + '&from=' + fromDate + '&sortBy=publishedAt&language=' + langParam + '&pageSize=10&apiKey=' + key;
+                var data = await fetchWithCorsProxy(url);
 
                 if (data.status === 'ok' && data.articles) {
-                    const articles = data.articles.map(a => ({
-                        title: a.title,
-                        link: a.url,
-                        pubDate: new Date(a.publishedAt).getTime(),
-                        source: a.source?.name || endpoint.name,
-                        type: endpoint.type,
-                        description: a.description?.substring(0, 300) || ''
-                    }));
+                    var articles = data.articles.map(function(a) {
+                        return {
+                            title: a.title,
+                            link: a.url,
+                            pubDate: new Date(a.publishedAt).getTime(),
+                            source: a.source && a.source.name ? a.source.name : endpoint.name,
+                            type: endpoint.type,
+                            description: a.description ? a.description.substring(0, 300) : '',
+                            lang: langParam
+                        };
+                    });
                     allArticles = allArticles.concat(articles);
                 } else if (data.status === 'error') {
                     console.warn('NewsAPI error:', data.message || 'Unknown error');
-                    // Show error to user
-                    if (data.message && data.message.includes('rateLimit')) {
+                    if (data.message && data.message.indexOf('rateLimit') !== -1) {
                         document.getElementById('newsapi-status').textContent = '⚠️ Límite de 100 req/día alcanzado. Espera mañana o usa RSS.';
                         document.getElementById('newsapi-status').className = 'text-[10px] mt-2 text-amber-400';
-                    } else if (data.message && data.message.includes('apiKey')) {
+                    } else if (data.message && data.message.indexOf('apiKey') !== -1) {
                         document.getElementById('newsapi-status').textContent = '❌ API Key inválida. Verifica en newsapi.org';
                         document.getElementById('newsapi-status').className = 'text-[10px] mt-2 text-red-400';
                     }
@@ -3194,17 +3258,20 @@
 
     async function fetchRSS(feed) {
         try {
-            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}&count=10`;
-            const data = await fetchWithRetry(apiUrl, {}, 1, 8000);
+            var apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url) + '&count=10';
+            var data = await fetchWithRetry(apiUrl, {}, 1, 8000);
             if (data.status !== 'ok' || !data.items) return [];
-            return data.items.map(item => ({
-                title: item.title,
-                link: item.link,
-                pubDate: new Date(item.pubDate).getTime(),
-                source: feed.name,
-                type: feed.type,
-                description: item.description?.replace(/<[^>]*>/g, '').substring(0, 200) || ''
-            }));
+            return data.items.map(function(item) {
+                return {
+                    title: item.title,
+                    link: item.link,
+                    pubDate: new Date(item.pubDate).getTime(),
+                    source: feed.name,
+                    type: feed.type,
+                    description: item.description ? item.description.replace(/<[^>]*>/g, '').substring(0, 200) : '',
+                    lang: feed.lang || 'en'
+                };
+            });
         } catch (e) {
             console.warn('RSS falló:', feed.name, e.message);
             return [];
@@ -3246,14 +3313,13 @@
 
     async function fetchNews() {
         document.getElementById('intel-status').textContent = 'Cargando noticias...';
-        let allNews = [];
-        let newsApiSuccess = false;
+        var allNews = [];
+        var newsApiSuccess = false;
 
-        // Intentar NewsAPI primero si hay key (con proxy CORS)
-        const key = getNewsApiKey();
+        var key = getNewsApiKey();
         if (key) {
             try {
-                const apiNews = await fetchNewsAPI();
+                var apiNews = await fetchNewsAPI();
                 if (apiNews.length > 0) {
                     allNews = apiNews;
                     newsApiSuccess = true;
@@ -3270,15 +3336,14 @@
             }
         }
 
-        // Fallback a RSS si NewsAPI falló o no hay key
         if (allNews.length === 0) {
-            for (const feed of RSS_FEEDS) {
-                const items = await fetchRSS(feed);
+            for (var i = 0; i < RSS_FEEDS.length; i++) {
+                var items = await fetchRSS(RSS_FEEDS[i]);
                 allNews = allNews.concat(items);
             }
-            document.getElementById('intel-status').textContent = allNews.length > 0 ? `RSS activo — ${allNews.length} noticias` : 'Usando noticias de demo';
+            document.getElementById('intel-status').textContent = allNews.length > 0 ? 'RSS activo — ' + allNews.length + ' noticias' : 'Usando noticias de demo';
         } else {
-            document.getElementById('intel-status').textContent = `NewsAPI activo — ${allNews.length} noticias reales`;
+            document.getElementById('intel-status').textContent = 'NewsAPI activo — ' + allNews.length + ' noticias reales';
         }
 
         if (allNews.length === 0) {
@@ -3290,19 +3355,32 @@
             }
         }
 
-        allNews.sort((a, b) => b.pubDate - a.pubDate);
+        allNews.sort(function(a, b) { return b.pubDate - a.pubDate; });
         allNews = allNews.slice(0, 20);
 
-        // Process news and check for high impact alerts
-        newsCache = allNews.map(n => {
-            const analysis = analyzeNewsImpact(n.title, n.description);
-            const newsItem = { ...n, ...analysis, id: n.link || n.title };
+        // ========== TRADUCCIÓN AUTOMÁTICA ==========
+        var englishNews = [];
+        var spanishNews = [];
+        for (var j = 0; j < allNews.length; j++) {
+            if (allNews[j].lang === 'en') englishNews.push(allNews[j]);
+            else spanishNews.push(allNews[j]);
+        }
 
-            // Check for push alerts on high impact news affecting current asset
+        if (englishNews.length > 0) {
+            document.getElementById('intel-status').textContent = 'Traduciendo ' + englishNews.length + ' noticias al español...';
+            var translated = await translateBatch(englishNews);
+            allNews = spanishNews.concat(translated);
+            allNews.sort(function(a, b) { return b.pubDate - a.pubDate; });
+        }
+
+        newsCache = allNews.map(function(n) {
+            var analysis = analyzeNewsImpact(n.title, n.description);
+            var newsItem = Object.assign({}, n, analysis, { id: n.link || n.title });
+
             if (!state.lastNewsIds.has(newsItem.id)) {
                 state.lastNewsIds.add(newsItem.id);
                 if (state.lastNewsIds.size > 100) {
-                    const iter = state.lastNewsIds.values();
+                    var iter = state.lastNewsIds.values();
                     state.lastNewsIds.delete(iter.next().value);
                 }
                 checkNewsImpactAlerts(newsItem);
@@ -3316,68 +3394,62 @@
         renderCorrelationMatrix();
     }
 
-    function generateDemoNews() {
-        const now = Date.now();
-        const demos = [
-            { title: 'Bitcoin supera los $70.000 tras aprobación de ETF en Asia', source: 'CoinDesk', type: 'crypto', pubDate: now - 3600000 },
-            { title: 'Solana alcanza nuevo ATH impulsado por DeFi y NFTs', source: 'CoinTelegraph', type: 'crypto', pubDate: now - 1800000 },
-            { title: 'La FED mantiene tasas sin cambios: mercados reaccionan al alza', source: 'Bloomberg', type: 'macro', pubDate: now - 7200000 },
-            { title: 'Apple anuncia nuevos modelos de iPhone: acciones suben un 3%', source: 'Reuters', type: 'stocks', pubDate: now - 10800000 },
-            { title: 'Ethereum completa actualización Dencun: comisiones caen un 90%', source: 'CoinTelegraph', type: 'crypto', pubDate: now - 14400000 },
-            { title: 'Tensiones geopolíticas en Oriente Medio impulsan demanda de oro y Bitcoin', source: 'CryptoNews', type: 'macro', pubDate: now - 18000000 },
-            { title: 'El S&P 500 marca nuevo máximo histórico impulsado por tecnológicas', source: 'MarketWatch', type: 'stocks', pubDate: now - 21600000 },
-            { title: 'SEC retrasa decisión sobre ETF de Solana: mercado en espera', source: 'CoinDesk', type: 'crypto', pubDate: now - 25200000 },
-            { title: 'Inflación en EEUU baja al 2,8%: expectativas de recorte de tasas crecen', source: 'Reuters', type: 'macro', pubDate: now - 28800000 },
-        ];
-        return demos.map(d => ({ ...d, description: d.title, link: '#' }));
-    }
-
-    function renderNews() {
-        const container = document.getElementById('news-container');
-        const filtered = currentNewsFilter === 'all'
-            ? newsCache
-            : newsCache.filter(n => n.type === currentNewsFilter || (currentNewsFilter === 'macro' && n.impactLevel === 'high'));
+function renderNews() {
+        var container = document.getElementById('news-container');
+        var filtered;
+        if (currentNewsFilter === 'all') {
+            filtered = newsCache;
+        } else {
+            filtered = newsCache.filter(function(n) {
+                return n.type === currentNewsFilter || (currentNewsFilter === 'macro' && n.impactLevel === 'high');
+            });
+        }
 
         if (filtered.length === 0) {
             container.innerHTML = '<div class="text-center py-8 text-xs text-slate-500 col-span-2">Sin noticias en esta categoría</div>';
             return;
         }
 
-        container.innerHTML = filtered.map(n => {
-            const impactClass = n.impactLevel === 'high' ? 'impact-high' : n.impactLevel === 'medium' ? 'impact-medium' : 'impact-low';
-            const impactText = n.impactLevel === 'high' ? 'ALTO' : n.impactLevel === 'medium' ? 'MEDIO' : 'BAJO';
-            const assets = n.affectedAssets.length > 0 ? n.affectedAssets.join(', ') : 'General';
-            const timeAgo = formatTimeAgo(n.pubDate);
-            return `
-                <a href="${n.link}" target="_blank" class="news-card block">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="source text-blue-400">${n.source}</span>
-                        <span class="impact-tag ${impactClass}">${impactText}</span>
-                    </div>
-                    <div class="title">${escapeHtml(n.title)}</div>
-                    <div class="meta flex justify-between">
-                        <span>${timeAgo}</span>
-                        <span class="text-slate-500">${assets}</span>
-                    </div>
-                </a>
-            `;
+        container.innerHTML = filtered.map(function(n) {
+            var impactClass = n.impactLevel === 'high' ? 'impact-high' : n.impactLevel === 'medium' ? 'impact-medium' : 'impact-low';
+            var impactText = n.impactLevel === 'high' ? 'ALTO' : n.impactLevel === 'medium' ? 'MEDIO' : 'BAJO';
+            var assets = n.affectedAssets.length > 0 ? n.affectedAssets.join(', ') : 'General';
+            var timeAgo = formatTimeAgo(n.pubDate);
+            var translatedBadge = n._translated ? '<span class="tag tag-blue ml-1" style="font-size:9px">🇪🇸 Traducido</span>' : '';
+            return '<a href="' + n.link + '" target="_blank" class="news-card block">' +
+                '<div class="flex items-center justify-between mb-1">' +
+                    '<div class="flex items-center gap-1">' +
+                        '<span class="source text-blue-400">' + n.source + '</span>' +
+                        translatedBadge +
+                    '</div>' +
+                    '<span class="impact-tag ' + impactClass + '">' + impactText + '</span>' +
+                '</div>' +
+                '<div class="title">' + escapeHtml(n.title) + '</div>' +
+                '<div class="meta flex justify-between">' +
+                    '<span>' + timeAgo + '</span>' +
+                    '<span class="text-slate-500">' + assets + '</span>' +
+                '</div>' +
+            '</a>';
         }).join('');
     }
 
-    function filterNews(type) {
-        currentNewsFilter = type;
-        document.querySelectorAll('[data-news-filter]').forEach(b => b.classList.remove('active'));
-        document.querySelector(`[data-news-filter="${type}"]`).classList.add('active');
-        renderNews();
+function generateDemoNews() {
+        var now = Date.now();
+        var demos = [
+            { title: 'Bitcoin supera los $70.000 tras aprobación de ETF en Asia', source: 'CoinDesk ES', type: 'crypto', pubDate: now - 3600000, lang: 'es' },
+            { title: 'Solana alcanza nuevo máximo histórico impulsado por DeFi y NFTs', source: 'Cointelegraph ES', type: 'crypto', pubDate: now - 1800000, lang: 'es' },
+            { title: 'La Reserva Federal mantiene tasas sin cambios: mercados reaccionan al alza', source: 'Bloomberg', type: 'macro', pubDate: now - 7200000, lang: 'es' },
+            { title: 'Apple anuncia nuevos modelos de iPhone: acciones suben un 3%', source: 'Reuters', type: 'stocks', pubDate: now - 10800000, lang: 'es' },
+            { title: 'Ethereum completa actualización Dencun: comisiones caen un 90%', source: 'Cointelegraph ES', type: 'crypto', pubDate: now - 14400000, lang: 'es' },
+            { title: 'Tensiones geopolíticas en Oriente Medio impulsan demanda de oro y Bitcoin', source: 'CryptoNoticias', type: 'macro', pubDate: now - 18000000, lang: 'es' },
+            { title: 'El S&P 500 marca nuevo máximo histórico impulsado por tecnológicas', source: 'MarketWatch', type: 'stocks', pubDate: now - 21600000, lang: 'es' },
+            { title: 'La SEC retrasa decisión sobre ETF de Solana: mercado en espera', source: 'CoinDesk ES', type: 'crypto', pubDate: now - 25200000, lang: 'es' },
+            { title: 'La inflación en EE.UU. baja al 2,8%: crecen las expectativas de recorte de tasas', source: 'Reuters', type: 'macro', pubDate: now - 28800000, lang: 'es' },
+        ];
+        return demos.map(function(d) { return Object.assign({}, d, { description: d.title, link: '#' }); });
     }
 
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function formatTimeAgo(timestamp) {
+function formatTimeAgo(timestamp) {
         const diff = Date.now() - timestamp;
         const mins = Math.floor(diff / 60000);
         if (mins < 1) return 'Ahora';
